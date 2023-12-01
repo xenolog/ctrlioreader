@@ -1,0 +1,253 @@
+---
+run:
+  go: "1.21"
+  timeout: 5m
+  skip-files:
+    - "pkg/client/internalclientset/.*"
+    - "zz_generated\\."
+output:
+  uniq-by-line: false
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  modules-download-mode: mod
+  # exclude:
+  #   - '^shadow:\s+declaration\s+of\s+"err"\s+shadows\s+declaration\s+at\s+line'
+  #   - '^shadow:\s+declaration\s+of\s+"ok"\s+shadows\s+declaration\s+at\s+line'
+  #   - '^shadow:\s+declaration\s+of\s+"ctx"\s+shadows\s+declaration\s+at\s+line'
+  #   - '^shadow:\s+declaration\s+of\s+"tt"\s+shadows\s+declaration\s+at\s+line'
+  exclude-rules:
+    - linters: [stylecheck]
+      text: "ST1003:"
+    - linters: [stylecheck] # ignore capitalised error strings for now
+      text: "ST1005:"
+    - linters: [misspell]
+      text: "gratuitious" # netplan gratuitious-arp
+    - linters: [golint, revive]
+      text: "error strings should not be capitalized or end with punctuation or a newline"
+    - linters: [golint, revive]
+      text: "context-keys-type: should not use basic type string as key in context.WithValue"
+    - linters: [staticcheck]
+      text: "SA1029"
+    - linters: [gocritic]
+      text: "commentFormatting: put a space between `//` and comment text"
+    - linters: [gocritic]
+      text: "hugeParam: in is heavy"
+      source: '\)\s+String\(\)\s+\(rv\s+string\)\s+\{' # Stringer interface
+    - linters: [staticcheck]
+      text: "pkg/client/fake"
+    - linters: [revive]
+      text: "var-naming:"
+    - linters: [revive]
+      text: "defer: prefer not to defer chains of function calls"
+    - linters: [revive]
+      text: "struct-tag: unknown option 'inline' in JSON tag"
+    - linters: [revive]
+      text: "defer: prefer not to defer inside loops"
+    - linters: [revive]
+      text: "^confusing-naming: Method '[Rr]econcile' differs only by capitalization"
+      path: fake-.+\.go
+    - linters: [revive]
+      text: "^import-alias-naming:"
+    - linters: [wsl]
+      text: "if statements should only be cuddled with assignments"
+    - linters: [wsl]
+      text: "Sort is a convenience method: x.Sort() calls Sort(x)."
+    - linters: [revive]
+      text: "unexported-naming:"
+      path: _test\.go
+    - linters: [forcetypeassert]
+      path: _test\.go
+    - linters: [goconst]
+      text: '^string\s+`(OK|ERR|simple)`'
+    - linters: [nolintlint] # workaround to VScode + gopls formating features
+      text: '^directive\s+`//\s+nolint:\s+[A-Za-z0-9]+`\s+should\s+be\s+written\s+without\s+leading\s+space'
+    - linters: [musttag]
+      source: "type GroupVersionKind struct {"
+#    - linters: [depguard]
+#      # text: "import-alias-naming:"
+#      text: ""
+linters:
+  enable-all: true
+  disable:
+    - gomoddirectives
+    - thelper
+    - cyclop
+    - deadcode # is deprecated (since v1.49.0) due to: The owner seems to have abandoned the linter.  Replaced by unused.
+    - errname
+    - exhaustivestruct # is deprecated (since v1.46.0) due to: The owner seems to have abandoned the linter.  Replaced by exhaustruct.
+    - exhaustruct
+    - forcetypeassert # the same check exists in revive
+    - funlen
+    - gocognit
+    - godot
+    - godox
+    - goerr113
+    - golint # is deprecated (since v1.41.0) due to: The repository of the linter has been archived by the owner.  Replaced by revive.
+    - gomnd
+    - ifshort # is deprecated (since v1.48.0) due to: The repository of the linter has been deprecated by the owner.
+    - interfacebloat
+    - interfacer # is deprecated (since v1.38.0) due to: The repository of the linter has been archived by the owner.
+    - ireturn
+    - lll
+    - maligned # is deprecated (since v1.38.0) due to: The repository of the linter has been archived by the owner.  Replaced by govet 'fieldalignment'.
+    - nestif
+    - nlreturn
+    - nonamedreturns
+    - nosnakecase # is deprecated (since v1.48.1) due to: The repository of the linter has been deprecated by the owner.  Replaced by revive(var-naming).
+    - rowserrcheck # is disabled because of generics. You can track the evolution of the generics support by following the https://github.com/golangci/golangci-lint/issues/2649.
+    - scopelint # is deprecated (since v1.39.0) due to: The repository of the linter has been deprecated by the owner.  Replaced by exportloopref.
+    - sqlclosecheck # is disabled because of generics. You can track the evolution of the generics support by following the https://github.com/golangci/golangci-lint/issues/2649.
+    - structcheck # is deprecated (since v1.49.0) due to: The owner seems to have abandoned the linter.  Replaced by unused.
+    - varcheck # is deprecated (since v1.49.0) due to: The owner seems to have abandoned the linter.  Replaced by unused.
+    - varnamelen
+    - wastedassign # is disabled because of generics. You can track the evolution of the generics support by following the https://github.com/golangci/golangci-lint/issues/2649.
+    - wsl
+linters-settings:
+  goimports:
+    local-prefixes: github.com/Mirantis/kaas-ipam,gerrit.mcp.mirantis.com/kaas/core,github.com/Mirantis/lcm,github.com/metal3-io/baremetal-operator,sigs.k8s.io/cluster-api-provider-openstack
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - performance
+      - experimental
+      - opinionated
+      - style
+    disabled-checks:
+      - commentedOutCode
+      - exposedSyncMutex
+      - whyNoLint # todo: should be fixed
+      - unnamedResult
+    settings:
+      rangeValCopy:
+        sizeThreshold: 32 # size in bytes that makes the warning trigger (default 128)
+        skipTestFuncs: true
+      hugeParam:
+        sizeThreshold: 80 # size in bytes that makes the warning trigger (default 80)
+  staticcheck:
+    # Sxxxx checks in https://staticcheck.io/docs/configuration/options/#checks
+    # Default: ["*"]
+    checks: ["all"]
+  funlen:
+    lines: 512
+    statements: 256
+  gosec:
+    exclude-generated: true
+    severity: high
+    confidence: high
+    includes: []
+  gosimple:
+    checks: ["all"]
+  govet:
+    check-shadowing: true
+    enable-all: true
+    disable:
+      - fieldalignment
+  makezero:
+    # Allow only slices initialized with a length of zero.
+    always: true
+  revive:
+    ignore-generated-header: true
+    severity: warning
+    enable-all-rules: true
+    rules:
+      - name: cyclomatic
+        disabled: true
+      - name: comment-spacings
+        disabled: true
+      - name: line-length-limit
+        arguments: [240]
+      - name: file-header
+        disabled: true
+      - name: flag-parameter
+        disabled: true
+      - name: max-public-structs
+        disabled: true
+      - name: cognitive-complexity
+        disabled: true
+      - name: function-length
+        disabled: true
+      - name: function-result-limit
+        disabled: true
+      - name: argument-limit
+        disabled: true
+      - name: banned-characters
+        disabled: true
+      - name: nested-structs
+        disabled: true
+      - name: comment-spacings
+        disabled: true
+      - name: add-constant
+        arguments:
+          - maxLitCount: "3"
+            allowStrs: '"","/","%w: %w"'
+            allowInts: "0,1,2"
+      - name: imports-blacklist
+        arguments:
+          - "crypto/md5"
+          - "crypto/sha1"
+      - name: defer
+        arguments:
+          - ["call-chain", "loop"]
+      - name: var-naming
+        arguments:
+          - ["ID"] # AllowList
+          - ["VM"] # DenyList
+      - name: unhandled-error
+        arguments:
+          - fmt.Print
+          - fmt.Printf
+          - fmt.Println
+      - name: string-format
+        arguments:
+          - - "core.WriteError[1].Message"
+            - "/^([^A-Z]|$)/"
+            - must not start with a capital letter
+          - - "fmt.Errorf[0]"
+            - '/(^|[^\.!?])$/'
+            - must not end in punctuation
+          - - panic
+            - '/^[^\n]*$/'
+            - must not contain line breaks
+  gofmt:
+    # Apply the rewrite rules to the source before reformatting.
+    # https://pkg.go.dev/cmd/gofmt
+    # Default: []
+    rewrite-rules:
+      - pattern: "interface{}"
+        replacement: "any"
+  gofumpt:
+    # Module path which contains the source code being formatted.
+    # Default: ""
+    #module-path: github.com/org/project
+    # Choose whether to use the extra rules.
+    # Default: false
+    extra-rules: true
+  paralleltest:
+    # Ignore missing calls to `t.Parallel()` and only report incorrect uses of it.
+    # Default: false
+    ignore-missing: true
+  depguard:
+    rules:
+      main:
+        # list-mode: lax
+        files:
+          - $all
+          - "!$test"
+        allow:
+          - $gostd
+          - github.com/xenolog/mlog
+        # deny:
+        # reflect: Please don't use reflect package
+      test:
+        files:
+          - $test
+        allow:
+          - $gostd
+          - github.com/xenolog/mlog
+          - github.com/stretchr/testify
+          - github.com/itchyny/gojq
+          - github.com/google/uuid
+        # deny:
+        # reflect: Please don't use reflect package
+###
