@@ -11,7 +11,7 @@ import (
   "testing/iotest"
   "time"
   assert "github.com/stretchr/testify/require"
-  "github.com/xenolog/ctrlioreader"
+  "github.com/xenolog/rwutils/ctrlioreader"
 )
 
 func Test__ScanWithNetworkDelay(t *testing.T) {
